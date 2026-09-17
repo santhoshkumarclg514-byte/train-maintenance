@@ -3,6 +3,7 @@ import React from "react";
 import Link from "next/link";
 import { useData } from "../context/DataContext";
 import { KpiBentoGrid } from "../components/KpiBentoGrid";
+import { CorridorVisualizer } from "../components/CorridorVisualizer";
 import { LiveTrainTracker } from "../components/LiveTrainTracker";
 import {
   MapPin,
@@ -47,10 +48,20 @@ export default function DashboardPage() {
         />
       </section>
 
-      {/* 1B. LIVE TRAIN LOCATION TRACKER MODULE */}
+      {/* 1B. INTERACTIVE RAILWAY CORRIDOR ROUTE VISUALIZER */}
+      <section>
+        <CorridorVisualizer
+          activePlan={activePlan}
+          trains={trains}
+          requests={requests}
+        />
+      </section>
+
+      {/* 1C. LIVE TRAIN LOCATION TRACKER MODULE */}
       <section>
         <LiveTrainTracker />
       </section>
+
 
 
       {/* 2. Current Active Maintenance Block Summary */}

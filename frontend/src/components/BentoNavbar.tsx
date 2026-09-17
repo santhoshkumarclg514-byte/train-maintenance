@@ -60,9 +60,6 @@ export const BentoNavbar: React.FC = () => {
                 <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold tracking-wide flex items-center gap-1">
                   <Cpu className="w-3.5 h-3.5 text-emerald-600" /> CP-SAT v9.15
                 </span>
-                <span className="text-xs px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300 font-bold tracking-wide">
-                  {t("demo_mode_badge")}
-                </span>
               </div>
               <p className="text-xs md:text-sm text-slate-600 mt-0.5 font-medium">
                 {t("app_subtitle")}
@@ -154,84 +151,8 @@ export const BentoNavbar: React.FC = () => {
           })}
         </div>
       </nav>
-
-      {/* Interactive SIH Demo Stepper Banner */}
-      <div className="clay-container p-3.5 bg-gradient-to-r from-emerald-50 via-teal-50 to-white border border-emerald-200">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-            <span className="text-xs font-black text-emerald-950 uppercase tracking-wider">
-              SIH End-to-End Demo Workflow:
-            </span>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <Link
-              href="/"
-              onClick={() => setDemoStep(1)}
-              className={`px-3 py-1 rounded-xl font-bold flex items-center gap-1 cursor-pointer transition-all ${
-                demoStep === 1
-                  ? "bg-emerald-600 text-white shadow-sm"
-                  : "clay-inset text-emerald-900 hover:bg-emerald-100"
-              }`}
-            >
-              1. Dashboard
-            </Link>
-            <ArrowRight className="w-3 h-3 text-emerald-400" />
-
-            <Link
-              href="/requests"
-              onClick={() => setDemoStep(2)}
-              className={`px-3 py-1 rounded-xl font-bold flex items-center gap-1 cursor-pointer transition-all ${
-                demoStep === 2
-                  ? "bg-emerald-600 text-white shadow-sm"
-                  : "clay-inset text-emerald-900 hover:bg-emerald-100"
-              }`}
-            >
-              2. Add Defect & Score
-            </Link>
-            <ArrowRight className="w-3 h-3 text-emerald-400" />
-
-            <Link
-              href="/optimizer"
-              onClick={handleGeneratePlan}
-              className={`px-3 py-1 rounded-xl font-bold flex items-center gap-1 cursor-pointer transition-all ${
-                demoStep === 3
-                  ? "bg-emerald-600 text-white shadow-sm"
-                  : "clay-inset text-emerald-900 hover:bg-emerald-100"
-              }`}
-            >
-              3. Generate Plan
-            </Link>
-            <ArrowRight className="w-3 h-3 text-emerald-400" />
-
-            <Link
-              href="/optimizer"
-              onClick={() => setDemoStep(4)}
-              className={`px-3 py-1 rounded-xl font-bold flex items-center gap-1 cursor-pointer transition-all ${
-                demoStep === 4
-                  ? "bg-emerald-600 text-white shadow-sm"
-                  : "clay-inset text-emerald-900 hover:bg-emerald-100"
-              }`}
-            >
-              4. What-If Replanning
-            </Link>
-            <ArrowRight className="w-3 h-3 text-emerald-400" />
-
-            <Link
-              href="/approvals"
-              onClick={() => setDemoStep(5)}
-              className={`px-3 py-1 rounded-xl font-bold flex items-center gap-1 cursor-pointer transition-all ${
-                demoStep === 5
-                  ? "bg-emerald-600 text-white shadow-sm"
-                  : "clay-inset text-emerald-900 hover:bg-emerald-100"
-              }`}
-            >
-              5. Controller Approval
-            </Link>
-          </div>
-        </div>
-      </div>
     </header>
   );
 };
+
+
