@@ -81,15 +81,13 @@ export const InspectionStream: React.FC<InspectionStreamProps> = ({
                 <span className="w-2.5 h-2.5 rounded-full bg-indigo-600 animate-ping" />
                 🛰️ Live AI Diagnostics (KM {aiModalResult.inspection_location_km})
               </span>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-indigo-600 text-white tracking-wide shadow-sm">
-                ✨ {aiModalResult.ai_result.gemini_model || "Google Gemini 3.6 Flash"}
-              </span>
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500 text-white">
                 Risk Score: {aiModalResult.ai_result.ai_risk_score} / 10
               </span>
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-600 text-white">
                 Failure Prob: {aiModalResult.ai_result.failure_probability_pct}%
               </span>
+
             </div>
             <button
               onClick={() => setAiModalResult(null)}

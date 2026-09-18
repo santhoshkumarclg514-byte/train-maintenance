@@ -340,9 +340,30 @@ def seed_database():
     for ins in inspection_data:
         db.add(InspectionModel(**ins))
 
+    # 8. INITIAL PRELOADED MAINTENANCE PLAN (RB-021)
+    db.add(PlanModel(
+        plan_code="RB-021",
+        section_code="SEC-142-143",
+        start_km=142.0,
+        end_km=143.0,
+        start_time="11:30",
+        end_time="13:30",
+        duration_hours=2.0,
+        bundled_tasks_json=json.dumps(["TRK-104", "SIG-207", "ELE-310"]),
+        allocated_teams_json=json.dumps(["Track Team", "Signalling Team", "Electrical Team"]),
+        equipment_json=json.dumps(["Rail Grinder RG-104", "Point Diagnostic Rig", "Tower Wagon TW-09"]),
+        train_conflicts_count=0,
+        priority_level="Critical",
+        solver_status="OPTIMAL",
+        recommendation_reason="Initial optimal daylight window with zero train conflicts.",
+        approval_status="AI_RECOMMENDED",
+        controller_notes="Initial recommendation pending controller authorization"
+    ))
+
     db.commit()
     db.close()
     print("Synthetic railway database successfully initialized with demo scenario!")
+
 
 if __name__ == "__main__":
     seed_database()
