@@ -24,6 +24,8 @@ from optimizer import optimize_maintenance_block
 from simulator import simulate_what_if
 from seed_data import seed_database
 from fault_detector import calculate_live_train_positions, analyze_telemetry_anomaly, lat_lng_to_km
+from gemini_service import generate_ai_defect_analysis, generate_controller_plan_rationale
+
 
 
 app = FastAPI(
@@ -860,6 +862,12 @@ def analyze_inspection_feed(req: AIInspectionAnalysisRequest, db: Session = Depe
     # Run AI Anomaly Detection logic
     ai_result = analyze_telemetry_anomaly(req.dict())
     
+    # Generate live Gemini 3.6 Flash Safety Advisory
+    gemini_eval = generate_ai_defect_analysis(req.dict())
+    ai_result["gemini_advisory"] = gemini_eval["analysis_text"]
+    ai_result["gemini_active"] = gemini_eval["ai_generated"]
+    ai_result["gemini_model"] = gemini_eval["model_used"]
+    
     created_request_id = None
     if ai_result["anomaly_detected"] and ai_result["ai_risk_score"] >= 6.0:
         # Check if maintenance request already created for this location
@@ -900,7 +908,7 @@ def analyze_inspection_feed(req: AIInspectionAnalysisRequest, db: Session = Depe
                 equipment_needed="AI Diagnostic Track Machine",
                 priority_score=prio_res["final_score"],
                 priority_category=prio_res["category"],
-                explanation=f"[AI DETECTED] {ai_result['recommendation']}",
+                explanation=f"[GEMINI 3.6 FLASH] {gemini_eval['analysis_text']}",
                 status="Pending"
             )
             db.add(new_req)
@@ -913,6 +921,7 @@ def analyze_inspection_feed(req: AIInspectionAnalysisRequest, db: Session = Depe
         "auto_created_maintenance_task": created_request_id,
         "inspection_location_km": req.km_position
     }
+
 
 # 14. Application startup
 @app.on_event("startup")
