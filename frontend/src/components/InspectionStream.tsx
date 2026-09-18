@@ -74,34 +74,47 @@ export const InspectionStream: React.FC<InspectionStreamProps> = ({
 
       {/* AI Analysis Result Alert Banner */}
       {aiModalResult && (
-        <div className="mt-4 p-4 rounded-xl border border-blue-200 bg-blue-50/90 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-blue-900 text-sm">
-                🤖 AI Diagnostic Result (KM {aiModalResult.inspection_location_km}):
+        <div className="mt-4 p-5 rounded-2xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50/95 via-white to-blue-50/90 shadow-md flex flex-col gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-indigo-100 pb-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-extrabold text-indigo-950 text-sm flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-indigo-600 animate-ping" />
+                🛰️ Live AI Diagnostics (KM {aiModalResult.inspection_location_km})
               </span>
-              <span className="px-2 py-0.5 rounded text-xs font-bold bg-blue-600 text-white">
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-indigo-600 text-white tracking-wide shadow-sm">
+                ✨ {aiModalResult.ai_result.gemini_model || "Google Gemini 3.6 Flash"}
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500 text-white">
                 Risk Score: {aiModalResult.ai_result.ai_risk_score} / 10
               </span>
-              <span className="px-2 py-0.5 rounded text-xs font-bold bg-rose-600 text-white">
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-600 text-white">
                 Failure Prob: {aiModalResult.ai_result.failure_probability_pct}%
               </span>
             </div>
-            <p className="text-xs text-blue-950 font-medium mt-1">
-              {aiModalResult.ai_result.recommendation}
-            </p>
-            {aiModalResult.auto_created_maintenance_task && (
-              <p className="text-xs text-emerald-700 font-bold mt-1">
-                ✅ Auto-Filed High-Priority Maintenance Request: #{aiModalResult.auto_created_maintenance_task}
-              </p>
-            )}
+            <button
+              onClick={() => setAiModalResult(null)}
+              className="text-xs font-bold text-slate-500 hover:text-slate-800 px-3 py-1 bg-white rounded-lg border border-slate-200 shadow-sm self-end sm:self-auto"
+            >
+              Dismiss
+            </button>
           </div>
-          <button
-            onClick={() => setAiModalResult(null)}
-            className="text-xs font-bold text-slate-500 hover:text-slate-800 px-3 py-1 bg-white rounded border border-slate-200 shadow-sm"
-          >
-            Dismiss
-          </button>
+
+          {/* Gemini AI Safety Advisory Content */}
+          <div className="bg-white/80 p-3.5 rounded-xl border border-indigo-100 space-y-2">
+            <div className="text-[11px] font-extrabold text-indigo-900 uppercase tracking-wider flex items-center gap-1.5">
+              <span>🛡️ Chief Safety Officer Advisory (Speed Restriction & Action):</span>
+            </div>
+            <p className="text-xs text-slate-800 font-medium leading-relaxed">
+              {aiModalResult.ai_result.gemini_advisory || aiModalResult.ai_result.recommendation}
+            </p>
+          </div>
+
+          {aiModalResult.auto_created_maintenance_task && (
+            <div className="flex items-center gap-2 text-xs text-emerald-800 font-bold bg-emerald-100/80 px-3 py-2 rounded-lg border border-emerald-300">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>Auto-Filed Emergency Maintenance Work Order: #{aiModalResult.auto_created_maintenance_task}</span>
+            </div>
+          )}
         </div>
       )}
 

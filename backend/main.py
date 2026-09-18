@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 from database import (
     get_db, init_db, SessionLocal, StationModel, SectionModel, TrainModel,
     CrewModel, EquipmentModel, MaintenanceRequestModel, InspectionModel, PlanModel,
-    TrainTelemetryModel
+    TrainTelemetryModel, get_db_info
 )
 from priority_engine import calculate_priority
 from team_allocator import determine_required_teams
@@ -120,10 +120,12 @@ def health():
     return {
         "status": "healthy",
         "service": "RAILBLOCK AI",
+        "database": get_db_info(),
         "optimizer": "Google OR-Tools CP-SAT (Active)",
         "clustering": "Scikit-Learn DBSCAN (Active)",
         "mode": "Demonstration / Synthetic Data Prototype"
     }
+
 
 # 2. Reset / Seed Demo
 @app.post("/api/reset-demo")
@@ -603,6 +605,17 @@ def run_pipeline(db: Session = Depends(get_db)):
 
     # Step 8: Save or Update in database
     existing_plan = db.query(PlanModel).filter(PlanModel.plan_code == plan_result["cluster_id"]).first()
+    # Generate live Gemini 3.6 Flash Controller Rationale
+    gemini_summary = generate_controller_plan_rationale({
+        "plan_code": plan_result["cluster_id"],
+        "start_km": plan_result["start_km"],
+        "end_km": plan_result["end_km"],
+        "start_time": plan_result["start_time"],
+        "end_time": plan_result["end_time"],
+        "task_count": len(plan_result["tasks_included"]),
+        "conflicts_avoided": max(2, len(plan_result["tasks_included"]) - conflict_check["conflict_count"])
+    })
+
     if existing_plan:
         existing_plan.section_code = f"SEC-{int(plan_result['start_km'])}-{int(plan_result['end_km'])}"
         existing_plan.start_km = plan_result["start_km"]
@@ -617,7 +630,7 @@ def run_pipeline(db: Session = Depends(get_db)):
         existing_plan.affected_trains_json = json.dumps(conflict_check["conflicts"])
         existing_plan.priority_level = plan_result["priority_level"]
         existing_plan.solver_status = plan_result["solver_status"]
-        existing_plan.recommendation_reason = plan_result["reason"]
+        existing_plan.recommendation_reason = gemini_summary or plan_result["reason"]
         existing_plan.approval_status = "AI_RECOMMENDED"
         saved_plan = existing_plan
     else:
@@ -636,12 +649,13 @@ def run_pipeline(db: Session = Depends(get_db)):
             affected_trains_json=json.dumps(conflict_check["conflicts"]),
             priority_level=plan_result["priority_level"],
             solver_status=plan_result["solver_status"],
-            recommendation_reason=plan_result["reason"],
+            recommendation_reason=gemini_summary or plan_result["reason"],
             approval_status="AI_RECOMMENDED"
         )
         db.add(saved_plan)
     db.commit()
     db.refresh(saved_plan)
+
 
     return {
         "pipeline_status": "SUCCESS",
@@ -926,7 +940,6 @@ def analyze_inspection_feed(req: AIInspectionAnalysisRequest, db: Session = Depe
 # 14. Application startup
 @app.on_event("startup")
 def on_startup():
-
     init_db()
     # Check if database has data, else seed
     db = SessionLocal()
@@ -936,3 +949,9 @@ def on_startup():
             seed_database()
     finally:
         db.close()
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+

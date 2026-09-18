@@ -23,6 +23,8 @@ ENV/
 # Database files
 backend/*.db
 !backend/railblock.db
+backend/pgdata/
+
 
 # IDE & OS files
 .vscode/

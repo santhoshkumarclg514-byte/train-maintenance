@@ -1,14 +1,56 @@
+import os
 import json
 from datetime import datetime
 from sqlalchemy import create_engine, Column, Integer, Float, String, Text, Boolean, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = "sqlite:///./railblock.db"
+# Load environment variables manually if python-dotenv is absent
+def load_env_file():
+    env_path = os.path.join(os.path.dirname(__file__), '.env')
+    if os.path.exists(env_path):
+        with open(env_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    key, val = line.split('=', 1)
+                    os.environ.setdefault(key.strip(), val.strip())
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+load_env_file()
+
+DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
+_pg_server = None
+
+# If not explicitly pointing to another DB, start/connect to local PostgreSQL instance
+if not DATABASE_URL or DATABASE_URL.lower() in ("local", "postgres", "postgresql", "true"):
+    try:
+        import pgserver
+        pg_data_dir = os.path.join(os.path.dirname(__file__), "pgdata")
+        _pg_server = pgserver.get_server(pg_data_dir, cleanup_mode=None)
+        DATABASE_URL = _pg_server.get_uri()
+        print(f"[Database Engine] Started & Connected to Native PostgreSQL: {DATABASE_URL}")
+    except Exception as e:
+        print(f"[Database Engine] Local PostgreSQL init notice ({e}), falling back to SQLite.")
+        DATABASE_URL = "sqlite:///./railblock.db"
+
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+if DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+else:
+    engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+
+
+def get_db_info():
+    if "postgresql" in DATABASE_URL:
+        return "PostgreSQL 16 (Active)"
+    return "SQLite 3 (Active)"
+
+
 
 class StationModel(Base):
     __tablename__ = "stations"
